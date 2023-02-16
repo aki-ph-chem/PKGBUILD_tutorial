@@ -24,17 +24,17 @@
 - build(),package()は対話的になるようになってはならない。
 - package()は必須の関数で、省略することはできない。
 
-- prepare(): pacman 4.1から導入された
+- <b>prepare()</b>: pacman 4.1から導入された
     - パッチなどのソースコードをビルドする前の準備段階で実行されるコマンドの実行を行う。
     - build()の前,パッケージの展開の後で実行される
     - makepkg -eと展開を省略した場合では実行されない。
 
-- pkgver(): pacman 4.1から
+- <b>pkgver()</b>: pacman 4.1から
     - makepkgの実行中にpkgverの変数を更新することができる。 
     - ソースが取得・展開された後すぐに実行される。
     - git/svn/hgなどのパッケージを作成するときに便利
 
-- build()
+- <b>build()</b>
 
     - Bashの文法に基づいてソースコードから目的のバイナリをビルドするために用いられる。
     - 多くの場合まずsrcdirへの移動からスタートする
@@ -54,4 +54,12 @@ cd "${srcdir}/$pkgname-$pkgdir"
 make
 ```
 
-- check()
+- <b>check()</b>
+
+    - ビルドされたソフトウェアのの確認や依存関係が問題ないかをテスト。
+    - `PKGBUILD`や`makepkg.conf`で`BUILDENV+=('!check')`オプションを指定する。
+    - もしくは`--nocheck`フラッグを用いてmakepkgを呼び出す
+
+- <b>package()</b>
+    - 最後にビルドされたファイルをmakepkgが読み込む。
+    - デフォルトは`pkg`ディレクトリでこれはfakeroot環境である。 
