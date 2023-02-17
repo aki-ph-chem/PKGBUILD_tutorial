@@ -1,5 +1,7 @@
 # PKGBUILDのメモ
 
+PKGBUILDについてのについては[ここ](https://wiki.archlinux.jp/index.php/PKGBUILD)を参照
+
 ## パッケージングプロセス
 
 1. 依存パッケージがインストールされているかを確認する。 
@@ -64,13 +66,46 @@ make
     - デフォルトは`pkg`ディレクトリでこれはfakeroot環境である。 
     - すなわち、このディレクトリがインストール先のroot(/)となる。
     - インストールしたいファイルは`pkg`以下にディレクトリ構造を保ったまま配置される必要がある。
-    - 例えば、/usr/bin以下にインストールしたいならば${pkgdir}/usr/binにファイルを置くようにする
+    - 例えば、/usr/bin以下にインストールしたいならば(以下の例ではインストール先は全て/usr/binとする)${pkgdir}/usr/binにファイルを置くようにする
     - 多くの場合この処理は`make install`によって実行される
 
 ```bash
-make DESTDIR="$pkgdir/ install"
+make DESTDIR="$pkgdir/usr/bin" install
 ```
 
 -
     - 基本的には`make DESTDIR="$pkgdir/usr/bin"`で書くこと。
     - `DESTDIR`が使えない場合は`make --prefix="$pkgdir/usr/bin" install`で書く
+    - ソースコードの再コンパイルを行いたくない(build()を呼び出したくない)場合では`make --replace`を実行する
+    - この場合では`pakcage()`のみが呼び出される。
+
+
+## テスト
+
+### 基本的なパッケージのチェック
+
+PKGBUILDを書いてパッケージを作成する段階におけるミスは`makepkg`コマンドを実行すればPKBBUILDの内容をチェックされる。
+もし、不具合があればエラーを吐き停止する。
+`makepkg`が正常に終了したならば、作業ディレクトリ中に`pkgname-pkgver.pkg.tar.zst`というファイルが生成される。
+このパッケージは`pacman -U `でインストールが可能である。
+
+生成されたパッケージ必ずしも正常に機能するとは限らない。
+機能しない例としてはprefixが間違って設定されていることが挙がられる。
+pacmanのquery関数を使うことでパッケージに含まれているファイルのリスト、
+依存パッケージは`pacman -Qlp <package file name>`, `pacman -Qlp <package file name> `で表示することができる。
+
+### namcapを使った正常性のチェック
+
+パッケージが正常に機能するかのテストをパスしたならば`namcap`コマンドを用いたエラーチェックを
+行うべきである。
+
+```bash
+$ namcap PKGBUILD
+$ namcap <package file name>.pkg.tar.zst
+```
+
+この`namcap`は以下のチェックをパッケージに対して行う。
+
+1. PKGBUILDの中身を見て、よくある間違いやパッケージファイルの改装に不必要な・間違って置かれたファイルがないか確認する。 
+2. `ldd`を使ってパッケージ内の全てのELFファイルをスキャンして必要な共有ライブラリがあるパッケージが`depends`に欠けていることや推移的にな依存として省略できるパッケージを自動で報告する 
+3. 欠けている、もしくは不必要な依存パッケージのヒューリスティックな検索。
