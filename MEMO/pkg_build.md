@@ -1,8 +1,14 @@
 # PKGBUILDのメモ
 
-PKGBUILDについてのについては[ここ](https://wiki.archlinux.jp/index.php/PKGBUILD)を参照
+以下には、makepkgとPKGBUILDの要点について述べる。
+
+PKGBUILDに含まれる変数等についての詳細は[PKGBUILDの記事](https://wiki.archlinux.jp/index.php/PKGBUILD)を参照
 
 ## パッケージングプロセス
+
+Arc Linuxにおけるパッケージングは<b>makepkg</b>コマンドを
+<b>PKGBUILD</b>が存在するディレクトリで実行することによって行うことができる。
+このとき以下のプロセスが進行し最終的にパッケージファイル\*pkg.tar.zstが生成される。
 
 1. 依存パッケージがインストールされているかを確認する。 
 2. ソースをサーバーからダウンロードする
@@ -14,13 +20,18 @@ PKGBUILDについてのについては[ここ](https://wiki.archlinux.jp/index.p
 
 ## PKGBUILDの変数
 
+PKGBUILDには多くの変数があるが、特に重要なものをは<b>srcdir</b>, <b>pkgdir</b>である。
+
 - <b>srcdir</b>
    - <b>makepkg</b>がソースファイルを展開またはコピーしてくるディレクトリ 
 - <b>pkgdir</b>
    - build()が終わった後で<b>makepkg</b>はここに生成されたファイルをパッケージに入れる。
-   - すなわちここがパッケージのrootとなる
+すなわちここがパッケージのrootとなる
 
 ## PKGBUILDの関数
+
+以下ではPKGBUILDの関数について解説する。
+PKGBUILDで定義されている関数にはprepare(),pkgver(),build(),package(),check()がある。
 
 - build(),package()は対話的になるようになってはならない。
 - package()は必須の関数で、省略することはできない。
@@ -36,7 +47,6 @@ PKGBUILDについてのについては[ここ](https://wiki.archlinux.jp/index.p
     - git/svn/hgなどのパッケージを作成するときに便利
 
 - <b>build()</b>
-
     - Bashの文法に基づいてソースコードから目的のバイナリをビルドするために用いられる。
     - 多くの場合まずsrcdirへの移動からスタートする
 
@@ -56,7 +66,6 @@ make
 ```
 
 - <b>check()</b>
-
     - ビルドされたソフトウェアのの確認や依存関係が問題ないかをテスト。
     - `PKGBUILD`や`makepkg.conf`で`BUILDENV+=('!check')`オプションを指定する。
     - もしくは`--nocheck`フラッグを用いてmakepkgを呼び出す
