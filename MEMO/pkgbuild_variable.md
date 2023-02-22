@@ -117,9 +117,54 @@ depends=('foobar>=1.8.0')
 ```
 $ pacman -Qc <pkgname>
 ```
-
-
-
 ## ソース
 
+- source
+    - パッケージをビルドするのに必要なファイルの文字列。多くの場合HTTP,FTPのURL
+    - 例:`source=(http://example.com/$pkgname-$pkgver.tar.gz)`
+    - ローカルにおいたソースからビルドする場合では`PKGBUILD`のあるディレクトリと同じ場所に置く
+
+- noextract
+    - source行でmakepkgによって展開したくない圧縮フォーマットのファイル名
+    - 多くの場合では`/usr/bin/bsdtar`によって扱えない圧縮ファイルに`noextract`を使う。
+    - この場合では`unzip`や`p7zip`などを`makedepends`に追加してprepare()関数の最初の行に展開処理を書く
+
+```bash
+prepare() {
+    lrzip -d <source>.tar.lrz
+}
+```
+
+`source`行にはURLを指定することが可能であるが`noextract`にはファイル名の一部だけを指定する。
+
+```bash
+source=("http://ftp.archlinux.org/other/grub2/grub2_extras_lua_r20.tar.xz")
+noextract=("grub2_extras_lua_r20.tar.xz")
+```
+
 ## 整合性
+
+ファイルをある配布先からダウンロードした時に途中で改ざんされてしまうことがある。
+そこで、ダウンロードする前のファイルのデータ列を整数値の列とみなして和を求め、
+これをある定数で割ったあまりを求めこれを検査用のデータとする。
+この値をダウンロード後に確かめることでファイルの同一性を保証することができる。
+
+
+PKGBUILDでは多くの場合では配布先からソースをダウンロードする。
+そのため`source`配列の書かれたファイルの整合性をチェックするための変数がある。
+サムチェックを行いたくない場合では`SKIP`とする。
+
+これらの変数を生成するには`makepkg`コマンドの`-g/--geninteg`オプションを用いる。
+一般的には
+
+```
+$ makepkg -g >> PKGBUILD
+```
+
+で追加する。使用する整合性のチェックは`/etc/makepkg.conf`の`INTEGITY_CHECK`オプションで設定ができる。
+
+より高度なデジタル署名を用いたい場合では署名ファイルを`source`配列にPGP鍵のフィンガープリントを`validgpgkeys`配列に追加する必要がある。
+
+- validpgpkeys
+    - PGP鍵のフィンガープリントの配列
+    - `validpgpkeys`を使用した場合、`makepkg`は配列`validpgpkeys`に記載されている鍵の署名だけを使うようにする。
