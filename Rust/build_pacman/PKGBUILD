@@ -1,0 +1,37 @@
+# Maintainer: Your Name <youremail@domain.com>
+pkgname=greet
+pkgver=1.0
+pkgrel=1
+epoch=
+pkgdesc="sample of package by Rust"
+arch=("any")
+url=""
+license=('MIT')
+groups=()
+depends=()
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("$pkgname-$pkgver.tar.gz")
+noextract=()
+md5sums=()
+validpgpkeys=()
+
+build() {
+	cd "${srcdir}/$pkgname-$pkgver"
+        cargo build --release --locked
+        #cargo build --release
+}
+
+package() {
+    cd "${srcdir}/$pkgname-$pkgver"
+    install -Dm755 "target/release/$pkgname" -t "$pkgdir/usr/bin/"
+}
+sha256sums=('eccc9eea2098285ce329a8012625874511302fe0bf61f34039d4b0961d16f9e0')
