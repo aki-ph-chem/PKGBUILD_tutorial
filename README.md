@@ -15,3 +15,4 @@ Arch LinuxのPKGBUILDを自分で書いて簡単なパッケージを作って�
 ## 1 [C言語のソースコードからなるパッケージ](./c_lang/README.md)
 ## 2 [バイナリパッケージ](./binary/README.md) 
 ## 3 [Rustのプロジェクトからパッケージを作成](./Rust)
+## 4 [番外編: Rustのプロジェクトからdpkg(Debian系向け)パッケージを作成](./dpkg)
